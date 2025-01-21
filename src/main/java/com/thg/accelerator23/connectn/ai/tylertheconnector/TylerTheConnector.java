@@ -7,7 +7,7 @@ import com.thehutgroup.accelerator.connectn.player.Player;
 import com.thehutgroup.accelerator.connectn.player.Position;
 
 public class TylerTheConnector extends Player {
-  private static final int MAX_DEPTH = 6;
+  private static final int MAX_DEPTH = 5;
 
   public TylerTheConnector(Counter counter) {
     super(counter, TylerTheConnector.class.getName());
@@ -75,7 +75,7 @@ public class TylerTheConnector extends Player {
     }
   }
 
-  private boolean isGameOver(Board board) {
+  public boolean isGameOver(Board board) {
     // Check for a win or draw
     for (int x = 0; x < board.getConfig().getWidth(); x++) {
       for (int y = 0; y < board.getConfig().getHeight(); y++) {
@@ -157,7 +157,7 @@ public class TylerTheConnector extends Player {
     return score;
   }
 
-  private int scoreDirection(Board board, Position position, Counter counter, int dx, int dy) {
+  public int scoreDirection(Board board, Position position, Counter counter, int dx, int dy) {
     int count = 0;
     int openEnds = 0;
     int x = position.getX();
@@ -182,10 +182,9 @@ public class TylerTheConnector extends Player {
     } else if (count == 3 && openEnds > 0) {
       return 50; // Strong position
     }
-
-//    else if (count == 2 && openEnds > 1) {
-//      return 10; // Weak position
-//    }
+    else if (count == 2) {
+      return 10; // Weak position
+    }
 
     return 0;
   }
