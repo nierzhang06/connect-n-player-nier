@@ -19,25 +19,11 @@ public class TylerTheConnector extends Player {
   @Override
   public int makeMove(Board board) {
     int bestMove = -1;
-//    int bestScore = Integer.MIN_VALUE;
     long startTime = System.currentTimeMillis();
     long timeLimit = 10000; // 10 seconds in milliseconds
 
-//    for (int col = 0; col < board.getConfig().getWidth(); col++) {
-//      if (isColumnPlayable(board, col)) {
-//        try {
-//          Board newBoard = new Board(board, col, getCounter());
-//          int score = minimax(newBoard, MAX_DEPTH, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
-//          if (score > bestScore) {
-//            bestScore = score;
-//            bestMove = col;
-//          }
-//        } catch (InvalidMoveException ignored) {
-//          // Skip invalid moves
-//        }
-//      }
-//    }
     for (int depth = 1; depth <= MAX_DEPTH; depth++) {
+      System.out.println("Depth: " + depth);
       int currentBestMove = -1;
 
       try {
@@ -48,8 +34,10 @@ public class TylerTheConnector extends Player {
 
       if (currentBestMove != -1) {
         bestMove = currentBestMove; // Update the best move found so far
+        System.out.println("Best move: " + bestMove);
       }
     }
+    System.out.println("Final best move: " + bestMove);
     return bestMove;
   }
 
