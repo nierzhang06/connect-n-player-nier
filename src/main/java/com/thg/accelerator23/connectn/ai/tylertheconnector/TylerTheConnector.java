@@ -6,8 +6,11 @@ import com.thehutgroup.accelerator.connectn.player.InvalidMoveException;
 import com.thehutgroup.accelerator.connectn.player.Player;
 import com.thehutgroup.accelerator.connectn.player.Position;
 
+import java.util.concurrent.TimeoutException;
+
 public class TylerTheConnector extends Player {
-  private static final int MAX_DEPTH = 5;
+  private static final int MAX_DEPTH = 100;
+
 
   public TylerTheConnector(Counter counter) {
     super(counter, TylerTheConnector.class.getName());
@@ -16,16 +19,60 @@ public class TylerTheConnector extends Player {
   @Override
   public int makeMove(Board board) {
     int bestMove = -1;
+//    int bestScore = Integer.MIN_VALUE;
+    long startTime = System.currentTimeMillis();
+    long timeLimit = 10000; // 10 seconds in milliseconds
+
+//    for (int col = 0; col < board.getConfig().getWidth(); col++) {
+//      if (isColumnPlayable(board, col)) {
+//        try {
+//          Board newBoard = new Board(board, col, getCounter());
+//          int score = minimax(newBoard, MAX_DEPTH, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+//          if (score > bestScore) {
+//            bestScore = score;
+//            bestMove = col;
+//          }
+//        } catch (InvalidMoveException ignored) {
+//          // Skip invalid moves
+//        }
+//      }
+//    }
+    for (int depth = 1; depth <= MAX_DEPTH; depth++) {
+      int currentBestMove = -1;
+
+      try {
+        currentBestMove = iterativeDeepeningMinimax(board, depth, startTime, timeLimit);
+      } catch (TimeoutException e) {
+        break; // Stop searching if we run out of time
+      }
+
+      if (currentBestMove != -1) {
+        bestMove = currentBestMove; // Update the best move found so far
+      }
+    }
+    return bestMove;
+  }
+
+
+
+  private int iterativeDeepeningMinimax(Board board, int depth, long startTime, long timeLimit) throws TimeoutException {
+    int bestMove = -1;
     int bestScore = Integer.MIN_VALUE;
 
     for (int col = 0; col < board.getConfig().getWidth(); col++) {
       if (isColumnPlayable(board, col)) {
+        // Check if we're running out of time
+        if (System.currentTimeMillis() - startTime >= timeLimit - 500) {
+          throw new TimeoutException("Time limit reached");
+        }
+
         try {
           Board newBoard = new Board(board, col, getCounter());
-          int score = minimax(newBoard, MAX_DEPTH, false, Integer.MIN_VALUE, Integer.MAX_VALUE);
+          int score = minimax(newBoard, depth - 1, false, Integer.MIN_VALUE, Integer.MAX_VALUE, startTime, timeLimit);
+
           if (score > bestScore) {
             bestScore = score;
-            bestMove = col;
+            bestMove = col; // Update best move for the current depth
           }
         } catch (InvalidMoveException ignored) {
           // Skip invalid moves
@@ -33,10 +80,13 @@ public class TylerTheConnector extends Player {
       }
     }
 
-    return bestMove;
+    return bestMove; // Return the best move for this depth
   }
 
-  private int minimax(Board board, int depth, boolean isMaximising, int alpha, int beta) {
+  private int minimax(Board board, int depth, boolean isMaximising, int alpha, int beta, long startTime, long timeLimit) throws TimeoutException {
+    if (System.currentTimeMillis() - startTime >= timeLimit - 500) {
+      throw new TimeoutException("Time limit reached");
+    }
     if (depth == 0 || isGameOver(board)) {
       return evaluateBoard(board);
     }
@@ -47,7 +97,7 @@ public class TylerTheConnector extends Player {
         if (isColumnPlayable(board, col)) {
           try {
             Board newBoard = new Board(board, col, getCounter());
-            int eval = minimax(newBoard, depth - 1, false, alpha, beta);
+            int eval = minimax(newBoard, depth - 1, false, alpha, beta, startTime, timeLimit);
             maxEval = Math.max(maxEval, eval);
             alpha = Math.max(alpha, eval);
             if (beta <= alpha) break; // Alpha-beta pruning
@@ -63,7 +113,7 @@ public class TylerTheConnector extends Player {
         if (isColumnPlayable(board, col)) {
           try {
             Board newBoard = new Board(board, col, opponentCounter);
-            int eval = minimax(newBoard, depth - 1, true, alpha, beta);
+            int eval = minimax(newBoard, depth - 1, true, alpha, beta, startTime, timeLimit);
             minEval = Math.min(minEval, eval);
             beta = Math.min(beta, eval);
             if (beta <= alpha) break; // Alpha-beta pruning
