@@ -28,10 +28,15 @@ public class TylerTheConnectorTest {
     TylerTheConnector ai = new TylerTheConnector(Counter.X);
 
     // Simulate placing counters using the Board constructor
-    board = new Board(board, 3, Counter.X);
+//    board = new Board(board, 2, Counter.O);
+//    board = new Board(board, 3, Counter.X);
+    board = new Board(board, 4, Counter.O);
+    board = new Board(board, 5, Counter.O);
+    board = new Board(board, 5, Counter.O);
     board = new Board(board, 4, Counter.X);
+    board = new Board(board, 5, Counter.X);
 
-    int score = ai.scoreDirection(board, new Position(3, 0), Counter.X, 1, 0); // Horizontal scoring
+    int score = ai.scoreDirection(board, new Position(4, 1), Counter.X, 1, 1); // Horizontal scoring
 
 
     assertEquals(10, score, "Score should match the expected value for two connected counters with open ends.");

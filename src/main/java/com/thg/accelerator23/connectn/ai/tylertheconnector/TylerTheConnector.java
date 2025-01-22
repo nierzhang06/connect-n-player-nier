@@ -6,6 +6,7 @@ import com.thehutgroup.accelerator.connectn.player.InvalidMoveException;
 import com.thehutgroup.accelerator.connectn.player.Player;
 import com.thehutgroup.accelerator.connectn.player.Position;
 
+import java.lang.reflect.GenericDeclaration;
 import java.util.concurrent.TimeoutException;
 
 public class TylerTheConnector extends Player {
@@ -160,6 +161,8 @@ public class TylerTheConnector extends Player {
     return count == 4; // Return true if 4 counters are connected
   }
 
+
+
   private int evaluateBoard(Board board) {
     int score = 0;
 
@@ -201,14 +204,23 @@ public class TylerTheConnector extends Player {
     int x = position.getX();
     int y = position.getY();
 
+
+    Position previousPosition = new Position(x - dx, y - dy);
+    if (board.isWithinBoard(previousPosition) && (!board.hasCounterAtPosition(previousPosition))) {
+      openEnds++;
+    }
+
     // Count consecutive counters
     for (int i = 0; i < 4; i++) {
+
       Position newPosition = new Position(x + i * dx, y + i * dy);
       if (board.isWithinBoard(newPosition)) {
         if (counter.equals(board.getCounterAtPosition(newPosition))) {
           count++;
         } else if (!board.hasCounterAtPosition(newPosition)) {
           openEnds++;
+          break;
+        } else {
           break;
         }
       }
@@ -220,8 +232,11 @@ public class TylerTheConnector extends Player {
     } else if (count == 3 && openEnds > 0) {
       return 50; // Strong position
     }
-    else if (count == 2) {
+    else if (count == 2 && openEnds == 2) {
       return 10; // Weak position
+    }
+    else if (count == 2 && openEnds == 1) {
+      return 2; // Weak position
     }
 
     return 0;
