@@ -161,7 +161,7 @@ public class TylerTheConnector extends Player {
     return count == 4; // Return true if 4 counters are connected
   }
 
-
+  private final int[] columnWeights = {0, 1, 2, 3, 4, 4, 3, 2, 1, 0};
 
   private int evaluateBoard(Board board) {
     int score = 0;
@@ -176,14 +176,25 @@ public class TylerTheConnector extends Player {
           // Assign scores based on consecutive counters
           if (counter == getCounter()) {
             score += evaluatePosition(board, position, counter);
+            score += getPositionWeight(x, board.getConfig().getWidth());
           } else {
             score -= evaluatePosition(board, position, counter);
+            score -= getPositionWeight(x, board.getConfig().getWidth());
           }
         }
       }
     }
 
     return score;
+  }
+
+  // Centre Control
+  private int getPositionWeight(int column, int boardWidth) {
+
+    if (boardWidth == columnWeights.length) {
+      return columnWeights[column];
+    }
+    return 0;
   }
 
   private int evaluatePosition(Board board, Position position, Counter counter) {
@@ -230,13 +241,13 @@ public class TylerTheConnector extends Player {
     if (count == 4) {
       return 1000; // Winning position
     } else if (count == 3 && openEnds > 0) {
-      return 50; // Strong position
+      return 400; // Strong position
     }
     else if (count == 2 && openEnds == 2) {
-      return 10; // Weak position
+      return 30; // Weak position
     }
     else if (count == 2 && openEnds == 1) {
-      return 2; // Weak position
+      return 8; // Weaker position
     }
 
     return 0;
