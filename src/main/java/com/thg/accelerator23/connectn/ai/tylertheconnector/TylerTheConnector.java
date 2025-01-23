@@ -239,11 +239,9 @@ public class TylerTheConnector extends Player {
 
     // Scoring system for connected counters
     if (count == 4) {
-      return 10000; // Winning position
-    } else if (count == 3 && openEnds == 2) {
+      return 1000; // Winning position
+    } else if (count == 3 && openEnds > 0) {
       return 400; // Strong position
-    } else if (count == 3 && openEnds == 1) {
-      return 250; // Strong position
     }
     else if (count == 2 && openEnds == 2) {
       return 30; // Weak position

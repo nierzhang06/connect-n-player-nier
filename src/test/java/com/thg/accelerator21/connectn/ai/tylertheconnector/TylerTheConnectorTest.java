@@ -1,9 +1,6 @@
 package com.thg.accelerator21.connectn.ai.tylertheconnector;
 
-import com.thehutgroup.accelerator.connectn.player.Board;
-import com.thehutgroup.accelerator.connectn.player.Counter;
-import com.thehutgroup.accelerator.connectn.player.GameConfig;
-import com.thehutgroup.accelerator.connectn.player.Position;
+import com.thehutgroup.accelerator.connectn.player.*;
 import com.thg.accelerator23.connectn.ai.tylertheconnector.TylerTheConnector;
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +52,46 @@ public class TylerTheConnectorTest {
 
 
   }
+
+
+    @Test
+    public void testOpponentAboutToWinInColumn1() throws InvalidMoveException {
+      // Setup the board configuration
+      Board board = new Board(new GameConfig(10, 8, 4)); // 10x8 board with 4 counters needed to win
+
+      // Place counters to create the situation
+      // Opponent counters
+      board = new Board(board, 1, Counter.X);
+      board = new Board(board, 2, Counter.O);
+      board = new Board(board, 3, Counter.X);
+      board = new Board(board, 4, Counter.X);
+      board = new Board(board, 6, Counter.O);
+      board = new Board(board, 7, Counter.O);
+      board = new Board(board, 5, Counter.O);
+      board = new Board(board, 8, Counter.X);
+      board = new Board(board, 2, Counter.O);
+      board = new Board(board, 3, Counter.O);
+      board = new Board(board, 4, Counter.O);
+      board = new Board(board, 5, Counter.X);
+      board = new Board(board, 6, Counter.O);
+      board = new Board(board, 3, Counter.X);
+      board = new Board(board, 4, Counter.X);
+      board = new Board(board, 5, Counter.O);
+      board = new Board(board, 3, Counter.X);
+      board = new Board(board, 4, Counter.X);
+      board = new Board(board, 5, Counter.O);
+      board = new Board(board, 5, Counter.O);
+      board = new Board(board, 5, Counter.X);
+
+
+      TylerTheConnector aiPlayer = new TylerTheConnector(Counter.X);
+
+      // Perform the move
+      int chosenColumn = aiPlayer.makeMove(board);
+
+      // Assert that the AI blocks the opponent's winning move in column 1
+      assertEquals(1, chosenColumn, "AI did not block the opponent's winning move!");
+    }
 
 
 
