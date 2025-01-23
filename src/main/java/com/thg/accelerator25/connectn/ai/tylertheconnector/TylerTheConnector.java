@@ -1,4 +1,4 @@
-package com.thg.accelerator23.connectn.ai.tylertheconnector;
+package com.thg.accelerator25.connectn.ai.tylertheconnector;
 
 import com.thehutgroup.accelerator.connectn.player.Board;
 import com.thehutgroup.accelerator.connectn.player.Counter;
@@ -6,7 +6,6 @@ import com.thehutgroup.accelerator.connectn.player.InvalidMoveException;
 import com.thehutgroup.accelerator.connectn.player.Player;
 import com.thehutgroup.accelerator.connectn.player.Position;
 
-import java.lang.reflect.GenericDeclaration;
 import java.util.concurrent.TimeoutException;
 
 public class TylerTheConnector extends Player {
