@@ -19,7 +19,7 @@ public class TylerTheConnectorTest {
 //    assertTrue(true);
 //  }
   @Test
-  public void testScoreDirection() throws Exception {
+  public void testScoreDirectionThreeGap() throws Exception {
     // Arrange
     Board board = new Board(new GameConfig(10, 8, 4));
     TylerTheConnector ai = new TylerTheConnector(Counter.X);
@@ -27,16 +27,37 @@ public class TylerTheConnectorTest {
     // Simulate placing counters using the Board constructor
 //    board = new Board(board, 2, Counter.O);
 //    board = new Board(board, 3, Counter.X);
-    board = new Board(board, 0, Counter.X);
     board = new Board(board, 1, Counter.X);
     board = new Board(board, 2, Counter.X);
-    board = new Board(board, 3, Counter.O);
+    board = new Board(board, 4, Counter.X);
+//    board = new Board(board, 3, Counter.O);
 
 
-    int score = ai.scoreDirection(board, new Position(0, 0), Counter.X, 1, 0); // Horizontal scoring
+    int score = ai.scoreDirection(board, new Position(1, 0), Counter.X, 1, 0); // Horizontal scoring
 
 
-    assertEquals(0, score, "Score should match the expected value for two connected counters with open ends.");
+    assertEquals(350, score, "Score should match the expected value for two connected counters with open ends.");
+  }
+
+  @Test
+  public void testScoreDirectionTwoGap() throws Exception {
+    // Arrange
+    Board board = new Board(new GameConfig(10, 8, 4));
+    TylerTheConnector ai = new TylerTheConnector(Counter.X);
+
+    // Simulate placing counters using the Board constructor
+//    board = new Board(board, 2, Counter.O);
+//    board = new Board(board, 3, Counter.X);
+    board = new Board(board, 1, Counter.X);
+    board = new Board(board, 3, Counter.X);
+//    board = new Board(board, 4, Counter.X);
+//    board = new Board(board, 3, Counter.O);
+
+
+    int score = ai.scoreDirection(board, new Position(1, 0), Counter.X, 1, 0); // Horizontal scoring
+
+
+    assertEquals(100, score, "Score should match the expected value for two connected counters with open ends.");
   }
 
   @Test
