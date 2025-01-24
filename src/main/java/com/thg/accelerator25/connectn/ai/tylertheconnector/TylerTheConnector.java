@@ -6,62 +6,14 @@ import com.thehutgroup.accelerator.connectn.player.InvalidMoveException;
 import com.thehutgroup.accelerator.connectn.player.Player;
 import com.thehutgroup.accelerator.connectn.player.Position;
 
-import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.TimeoutException;
 
 public class TylerTheConnector extends Player {
   private static final int MAX_DEPTH = 100;
 
-  private final HashMap<Long, Integer> transpositionTable = new HashMap<>();
-
-  private final long[][][] zobristTable;
-
-
 
   public TylerTheConnector(Counter counter) {
     super(counter, TylerTheConnector.class.getName());
-    zobristTable = generateZobristTable();
-  }
-
-  private long[][][] generateZobristTable() {
-    Random random = new Random();
-    int width = 10;  // Adjust to your board's width
-    int height = 8; // Adjust to your board's height
-    long[][][] table = new long[width][height][3]; // 3 states: empty, yourCounter, opponentCounter
-    for (int x = 0; x < width; x++) {
-      for (int y = 0; y < height; y++) {
-        for (int state = 0; state < 3; state++) {
-          table[x][y][state] = random.nextLong();
-        }
-      }
-    }
-    return table;
-  }
-//
-  private long computeHash(Board board) {
-    long hash = 0;
-    for (int x = 0; x < board.getConfig().getWidth(); x++) {
-      for (int y = 0; y < board.getConfig().getHeight(); y++) {
-        Position position = new Position(x, y);
-        int state = getStateForPosition(board, position); // 0: empty, 1: yourCounter, 2: opponentCounter
-        hash ^= zobristTable[x][y][state];
-      }
-    }
-    return hash;
-  }
-
-  // Get the state for a position (0: empty, 1: yourCounter, 2: opponentCounter)
-  private int getStateForPosition(Board board, Position position) {
-    if (!board.hasCounterAtPosition(position)) return 0; // Empty
-    return board.getCounterAtPosition(position) == getCounter() ? 1 : 2; // Your counter or opponent's
-  }
-
-  // Update the Zobrist hash after a move
-  private long updateHash(long currentHash, int x, int y, int oldState, int newState) {
-    currentHash ^= zobristTable[x][y][oldState]; // Remove the old state
-    currentHash ^= zobristTable[x][y][newState]; // Add the new state
-    return currentHash;
   }
 
 
@@ -78,6 +30,7 @@ public class TylerTheConnector extends Player {
       try {
         currentBestMove = iterativeDeepeningMinimax(board, depth, startTime, timeLimit);
       } catch (TimeoutException e) {
+        System.out.println("TimeoutException: " + e.getMessage());
         break; // Stop searching if we run out of time
       }
 
@@ -121,18 +74,11 @@ public class TylerTheConnector extends Player {
   }
 
   private int minimax(Board board, int depth, boolean isMaximising, int alpha, int beta, long startTime, long timeLimit) throws TimeoutException {
-    long hash = computeHash(board);
-    if (transpositionTable.containsKey(hash)) {
-      return transpositionTable.get(hash); // Return cached score
-    }
     if (System.currentTimeMillis() - startTime >= timeLimit - 500) {
       throw new TimeoutException("Time limit reached");
     }
     if (depth == 0 || isGameOver(board)) {
-//      return evaluateBoard(board);
-      int score = evaluateBoard(board);
-      transpositionTable.put(hash, score); // Cache the result
-      return score;
+      return evaluateBoard(board);
     }
 
     if (isMaximising) {
@@ -149,7 +95,6 @@ public class TylerTheConnector extends Player {
           }
         }
       }
-      transpositionTable.put(hash, maxEval); // Cache the result
       return maxEval;
     } else {
       int minEval = Integer.MAX_VALUE;
@@ -166,7 +111,6 @@ public class TylerTheConnector extends Player {
           }
         }
       }
-      transpositionTable.put(hash, minEval); // Cache the result
       return minEval;
     }
   }
@@ -218,7 +162,7 @@ public class TylerTheConnector extends Player {
     return count == 4; // Return true if 4 counters are connected
   }
 
-  private final int[] columnWeights = {0, 1, 2, 3, 4, 4, 3, 2, 1, 0};
+  private final int[] columnWeights = {0, 1, 4, 8, 14, 14, 8, 4, 1, 0};
 
   private int evaluateBoard(Board board) {
     int score = 0;
@@ -269,7 +213,6 @@ public class TylerTheConnector extends Player {
   public int scoreDirection(Board board, Position position, Counter counter, int dx, int dy) {
     int count = 0;
     int openEnds = 0;
-    int gapCount = 0;
     int x = position.getX();
     int y = position.getY();
 
@@ -288,12 +231,6 @@ public class TylerTheConnector extends Player {
           count++;
         } else if (!board.hasCounterAtPosition(newPosition)) {
           openEnds++;
-          x = newPosition.getX();
-          y = newPosition.getY();
-          Position nextPosition = new Position(x + dx, y + dy);
-          if (count > 0 && openEnds == 2 && board.hasCounterAtPosition(nextPosition)) {
-            gapCount++;
-          }
           break;
         } else {
           break;
@@ -303,26 +240,23 @@ public class TylerTheConnector extends Player {
 
     // Scoring system for connected counters
     if (count == 4) {
-      return 1000; // Winning position
-    }
-    else if (count == 3 && openEnds > 0) {
+      return 10000; // Winning position
+    } else if (count == 3 && openEnds == 2) {
       return 400; // Strong position
-    }
-    else if (count == 2 && gapCount == 1) {
-      return 350; // Strong position
-    }
-    else if (count == 1 && gapCount == 1) {
-      return 100; // Strong position
+    } else if (count == 3 && openEnds == 1) {
+      return 300; // less Strong position
     }
     else if (count == 2 && openEnds == 2) {
-      return 30; // Weak position
+      return 20; // Weak position
     }
     else if (count == 2 && openEnds == 1) {
-      return 8; // Weaker position
+      return 10; // Weaker position
     }
 
     return 0;
   }
+
+
 
   private boolean isColumnPlayable(Board board, int col) {
     Position position = new Position(col, board.getConfig().getHeight() - 1);
